@@ -1,0 +1,991 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Peta Karnaugh — Aljabar Boolean</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg2: #141414;
+    --bg3: #1c1c1c;
+    --accent: #d4ff5c;
+    --accent2: #5cffd4;
+    --text: #f0ede6;
+    --muted: #888880;
+    --border: #2a2a2a;
+    --red: #ff6b6b;
+    --orange: #ffb347;
+    --blue: #5cb8ff;
+    --r: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lora', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1rem;
+    color: var(--accent); letter-spacing: 0.05em;
+  }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; font-weight: 400;
+    color: var(--muted); text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    min-height: 90vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(212,255,92,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.15em; color: var(--accent);
+    border: 1px solid rgba(212,255,92,0.3);
+    padding: 0.35rem 1rem; border-radius: 99px;
+    margin-bottom: 2rem;
+    display: inline-block;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 1.1rem; line-height: 1.8;
+    color: var(--muted); max-width: 540px;
+    margin: 0 auto 2.5rem;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  }
+  .btn-primary {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    background: var(--accent); color: #0d0d0d;
+    padding: 0.75rem 1.75rem; border-radius: 8px;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: transform .15s, opacity .15s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+  .btn-outline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    background: transparent; color: var(--text);
+    padding: 0.75rem 1.75rem; border-radius: 8px;
+    text-decoration: none; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: border-color .2s, color .2s;
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* GRID DECORATION */
+  .grid-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.4;
+  }
+
+  /* SECTIONS */
+  section { padding: 5rem 2rem; max-width: 860px; margin: 0 auto; }
+
+  .section-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.2em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 0.75rem;
+    display: block;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800; line-height: 1.15;
+    margin-bottom: 1.25rem;
+  }
+  .section-body {
+    font-size: 1rem; line-height: 1.85;
+    color: rgba(240,237,230,0.8);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.95rem;
+    color: var(--accent2); margin-bottom: 0.75rem;
+  }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2rem; }
+  .step {
+    display: grid; grid-template-columns: 44px 1fr;
+    gap: 1rem; align-items: start;
+  }
+  .step-num {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(212,255,92,0.1);
+    border: 1px solid rgba(212,255,92,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.9rem; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .step-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  .step-content p {
+    font-size: 0.95rem; line-height: 1.75;
+    color: rgba(240,237,230,0.7);
+  }
+
+  /* TRUTH TABLE */
+  .truth-table-wrap { overflow-x: auto; margin-top: 1.5rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%; font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+  }
+  th {
+    background: var(--bg3);
+    padding: 0.6rem 1rem;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+    color: var(--accent);
+  }
+  td {
+    padding: 0.55rem 1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .val-1 { color: var(--accent); font-weight: 700; }
+  .val-0 { color: var(--muted); }
+
+  /* K-MAP TABLE */
+  .kmap-wrap { margin-top: 1.5rem; }
+  .kmap-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    color: var(--muted); margin-bottom: 0.5rem;
+    display: block;
+  }
+  table.kmap { border-collapse: collapse; }
+  table.kmap th, table.kmap td {
+    width: 70px; height: 55px;
+    font-size: 1.1rem; font-family: 'DM Mono', monospace;
+    border: 1px solid var(--border);
+  }
+  table.kmap th { background: var(--bg3); font-size: 0.75rem; color: var(--accent2); }
+  table.kmap .cell-1 {
+    background: rgba(212,255,92,0.12);
+    color: var(--accent); font-weight: 700; font-size: 1.3rem;
+  }
+  table.kmap .cell-0 { color: var(--muted); }
+
+  /* GROUP HIGHLIGHT */
+  .grp-a { background: rgba(255,107,107,0.15) !important; outline: 2px solid rgba(255,107,107,0.6); }
+  .grp-b { background: rgba(92,184,255,0.15) !important; outline: 2px solid rgba(92,184,255,0.6); }
+  .grp-c { background: rgba(255,179,71,0.15) !important; outline: 2px solid rgba(255,179,71,0.6); }
+  .grp-ab { background: rgba(212,255,92,0.18) !important; outline: 2px solid rgba(212,255,92,0.5); }
+
+  /* RESULT BOX */
+  .result-box {
+    margin-top: 1.5rem;
+    background: rgba(212,255,92,0.07);
+    border: 1px solid rgba(212,255,92,0.25);
+    border-radius: var(--r);
+    padding: 1.25rem 1.5rem;
+  }
+  .result-box .label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.12em; color: var(--accent);
+    margin-bottom: 0.5rem; display: block;
+  }
+  .result-box .formula {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem; color: var(--text);
+  }
+
+  /* SOAL SECTION */
+  .soal-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2rem; }
+  .soal-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .soal-header {
+    background: var(--bg3);
+    padding: 0.75rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .soal-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 0.8rem;
+    color: var(--accent); letter-spacing: 0.1em;
+  }
+  .soal-body { padding: 1.25rem; }
+  .soal-body p {
+    font-size: 0.95rem; line-height: 1.75;
+    color: rgba(240,237,230,0.8); margin-bottom: 1rem;
+  }
+  .soal-formula {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    background: var(--bg3);
+    padding: 0.6rem 1rem; border-radius: 6px;
+    color: var(--accent2); margin-bottom: 0.75rem;
+    display: inline-block;
+  }
+
+  /* INTERACTIVE */
+  .interactive-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 2rem;
+    margin-top: 1.5rem;
+  }
+  .interactive-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: var(--accent2); margin-bottom: 1.25rem;
+  }
+  .input-row {
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+    align-items: flex-end; margin-bottom: 1rem;
+  }
+  .input-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  .input-group label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700;
+    color: var(--muted); letter-spacing: 0.1em;
+  }
+  .input-group input[type=number] {
+    width: 64px; height: 40px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text); font-family: 'DM Mono', monospace;
+    font-size: 1rem; text-align: center;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .input-group input:focus { border-color: var(--accent); }
+  #run-btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.82rem;
+    letter-spacing: 0.05em;
+    background: var(--accent); color: #0d0d0d;
+    border: none; border-radius: 8px;
+    padding: 0 1.25rem; height: 40px; cursor: pointer;
+    align-self: flex-end;
+    transition: transform .15s, opacity .15s;
+  }
+  #run-btn:hover { transform: translateY(-2px); opacity: 0.88; }
+  #kmap-result { margin-top: 1rem; display: none; }
+  #kmap-result .res-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    color: var(--muted); margin-bottom: 0.5rem; display: block;
+  }
+  #kmap-result code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px; color: var(--accent);
+  }
+  table.kmap {
+    border-collapse: collapse;
+    margin: 1.5rem auto;
+    background-color: var(--bg3, #111);
+    border: 2px solid var(--accent, #00ffcc);
+    width: 100%;
+    max-width: 450px;
+}
+table.kmap th {
+    background-color: var(--bg2, #0c0c0c);
+    padding: 12px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    border: 1px solid var(--border, #333);
+    color: var(--text);
+}
+table.kmap td {
+    padding: 15px;
+    border: 1px solid var(--border, #333);
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+}
+.cell-1 {
+    color: var(--accent, #00ffcc) !important;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+.cell-0 {
+    color: var(--muted, #555) !important;
+    font-size: 1.1rem;
+}
+
+  /* PROOF SECTION */
+  .proof-steps {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    margin-top: 1.25rem;
+  }
+  .proof-steps .ps-row {
+    display: flex; align-items: flex-start;
+    gap: 0.75rem; padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .proof-steps .ps-row:last-child { border-bottom: none; }
+  .ps-eq {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem; flex: 1;
+    color: var(--text);
+  }
+  .ps-reason {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; color: var(--muted);
+    text-align: right; min-width: 140px;
+    padding-top: 0.1rem;
+  }
+
+  /* LEGEND */
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+  .legend-item {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem; color: var(--muted);
+  }
+  .legend-dot {
+    width: 14px; height: 14px; border-radius: 3px;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; color: var(--muted);
+  }
+  footer span { color: var(--accent); }
+
+  /* divider */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 0 2rem;
+  }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    section { padding: 3.5rem 1.25rem; }
+    .hero { padding: 3rem 1.25rem; }
+    table.kmap th, table.kmap td { width: 52px; height: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">MATDIS · K-MAP</span>
+  <div class="nav-links">
+    <a href="#pengertian">Pengertian</a>
+    <a href="#cara">Cara Isi</a>
+    <a href="#contoh">Contoh Soal</a>
+    <a href="#interaktif">Kalkulator</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" style="position:relative;">
+  <div class="grid-bg" style="position:absolute;opacity:0.25;"></div>
+  <div style="position:relative;z-index:1;">
+    <span class="hero-tag">MATEMATIKA DISKRIT · ALJABAR BOOLEAN</span>
+    <h1>Peta <span>Karnaugh</span><br/>dari Tabel Kebenaran</h1>
+    <p>Metode grafis untuk menyederhanakan fungsi Boolean menggunakan diagram kotak-kotak berdasarkan minterm dari tabel kebenaran.</p>
+    <div class="hero-cta">
+      <a href="#pengertian" class="btn-primary">Mulai Belajar</a>
+      <a href="#interaktif" class="btn-outline">Coba Kalkulator</a>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 1: PENGERTIAN -->
+<section id="pengertian">
+  <span class="section-tag">01 — Pengertian</span>
+  <h2 class="section-title">Apa itu Peta Karnaugh?</h2>
+  <p class="section-body">
+    Peta Karnaugh (K-Map) adalah metode grafis untuk menyederhanakan fungsi Boolean. Ditemukan oleh Maurice Karnaugh pada tahun 1953, metode ini menggunakan diagram kotak-kotak bersisian di mana setiap kotak merepresentasikan satu <strong style="color:var(--accent)">minterm</strong>.
+  </p>
+
+  <div class="card">
+    <div class="card-title">Konsep Kunci</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Minterm</h4>
+          <p>Setiap kotak mewakili satu minterm. Kotak diisi <strong style="color:var(--accent)">1</strong> jika minterm tersebut ada di fungsi Boolean, dan <strong style="color:var(--muted)">0</strong> jika tidak.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Grey Code — 00, 01, 11, 10</h4>
+          <p>Urutan kolom/baris menggunakan kode Grey sehingga dua kotak bertetangga hanya berbeda 1 literal. Ini memungkinkan pengelompokan (grouping).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Grouping (Pair, Quad, Oktet)</h4>
+          <p>Kelompokkan kotak bernilai 1 dalam jumlah 2<sup>n</sup> (2, 4, 8, …). Semakin besar grup → semakin sedikit literal → fungsi semakin sederhana.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SECTION 2: CARA MENGISI -->
+<section id="cara">
+  <span class="section-tag">02 — Cara Mengisi K-Map</span>
+  <h2 class="section-title">Dari Tabel Kebenaran<br/>ke K-Map</h2>
+  <p class="section-body">
+    Langkah utama: tinjau hanya baris yang memberikan output <strong style="color:var(--accent)">F = 1</strong>, lalu tempatkan angka 1 di kotak K-Map yang sesuai dengan kombinasi variabel tersebut.
+  </p>
+
+  <div class="steps" style="margin-top:2rem;">
+    <div class="step">
+      <div class="step-num">①</div>
+      <div class="step-content">
+        <h4>Buat tabel kebenaran</h4>
+        <p>Buat semua kombinasi variabel (x, y, z) dan tentukan nilai fungsi F untuk setiap baris.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">②</div>
+      <div class="step-content">
+        <h4>Identifikasi minterm</h4>
+        <p>Catat semua baris dengan F = 1. Setiap baris adalah satu minterm. Tulis ekspresi SOP (Sum of Products).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">③</div>
+      <div class="step-content">
+        <h4>Isi K-Map</h4>
+        <p>Tempatkan angka 1 di kotak yang sesuai. Pastikan urutan kolom menggunakan Grey code: 00, 01, 11, 10.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">④</div>
+      <div class="step-content">
+        <h4>Kelompokkan (Grouping)</h4>
+        <p>Buat grup terbesar (Pair=2, Quad=4, Oktet=8) dari kotak bernilai 1 yang berdekatan. Boleh overlap.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">⑤</div>
+      <div class="step-content">
+        <h4>Baca hasil penyederhanaan</h4>
+        <p>Dari setiap grup, ambil literal yang tidak berubah (constant) dalam kelompok tersebut. AND-kan literal tersebut, lalu OR-kan semua grup.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SECTION 3: CONTOH SOAL -->
+<section id="contoh">
+  <span class="section-tag">03 — Contoh Soal</span>
+  <h2 class="section-title">5 Contoh Soal Lengkap</h2>
+  <p class="section-body">Setiap soal dimulai dari tabel kebenaran → peta Karnaugh → hasil penyederhanaan.</p>
+
+  <!-- SOAL 1 -->
+  <div class="soal-card" style="margin-top:2rem;">
+    <div class="soal-header">
+      <span class="soal-num">SOAL 01</span>
+      <span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:var(--muted);">3 variabel</span>
+    </div>
+    <div class="soal-body">
+      <p><strong>Sederhanakan</strong> fungsi Boolean berikut menggunakan K-Map:</p>
+      <div class="soal-formula">F(x,y,z) = x'y'z + xy'z' + xy'z + xyz</div>
+
+      <p style="margin-top:1rem;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--muted);letter-spacing:0.05em;">TABEL KEBENARAN</p>
+      <div class="truth-table-wrap">
+        <table>
+          <tr><th>x</th><th>y</th><th>z</th><th>F(x,y,z)</th><th>Minterm</th></tr>
+          <tr><td class="val-0">0</td><td class="val-0">0</td><td class="val-0">0</td><td class="val-0">0</td><td>—</td></tr>
+          <tr><td class="val-0">0</td><td class="val-0">0</td><td class="val-1">1</td><td class="val-1">1</td><td>m₁ → x'y'z</td></tr>
+          <tr><td class="val-0">0</td><td class="val-1">1</td><td class="val-0">0</td><td class="val-0">0</td><td>—</td></tr>
+          <tr><td class="val-0">0</td><td class="val-1">1</td><td class="val-1">1</td><td class="val-0">0</td><td>—</td></tr>
+          <tr><td class="val-1">1</td><td class="val-0">0</td><td class="val-0">0</td><td class="val-1">1</td><td>m₄ → xy'z'</td></tr>
+          <tr><td class="val-1">1</td><td class="val-0">0</td><td class="val-1">1</td><td class="val-1">1</td><td>m₅ → xy'z</td></tr>
+          <tr><td class="val-1">1</td><td class="val-1">1</td><td class="val-0">0</td><td class="val-0">0</td><td>—</td></tr>
+          <tr><td class="val-1">1</td><td class="val-1">1</td><td class="val-1">1</td><td class="val-1">1</td><td>m₇ → xyz</td></tr>
+        </table>
+      </div>
+
+      <p style="margin-top:1.25rem;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--muted);letter-spacing:0.05em;">PETA KARNAUGH (K-MAP)</p>
+      <div class="kmap-wrap">
+        <span class="kmap-label">Baris = x &nbsp;|&nbsp; Kolom = yz (Grey code: 00 01 11 10)</span>
+        <table class="kmap">
+          <tr>
+            <th>x \ yz</th><th>00</th><th>01</th><th>11</th><th>10</th>
+          </tr>
+          <tr>
+            <th>0</th>
+            <td class="cell-0">0</td>
+            <td class="cell-1 grp-a">1</td> <td class="cell-0">0</td>
+            <td class="cell-0">0</td>
+          </tr>
+          <tr>
+            <th>1</th>
+            <td class="cell-1 grp-b">1</td> <td class="cell-1 grp-a grp-b grp-c">1</td> <td class="cell-1 grp-c">1</td> <td class="cell-0">0</td> </tr>
+          </tr>
+          </table>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,107,0.5);border:1px solid #ff6b6b;"></div> Grup A: m₁, m₅ → y'z (Pair Vertikal)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(92,184,255,0.4);border:1px solid #5cb8ff;"></div> Grup B: m₄, m₅ → (Pair Horizontal Kiri)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,179,71,0.4);border:1px solid #ffb347;"></div> Grup C:  m₅, m₇ → xz (Pair Harizontal Kanan)</div>
+      </div>
+
+      <div class="result-box">
+        <span class="label">HASIL PENYEDERHANAAN</span>
+        <div class="formula">F(x,y,z) = y'z + xy' + xz</div>
+      </div>
+
+      <div class="proof-steps" style="margin-top:1rem;">
+        <div class="ps-row">
+          <span class="ps-eq">F = x'y'z + xy'z' + xy'z + xyz</span>
+          <span class="ps-reason">SOP awal</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-eq">= y'z(x'+x) + xy'z' + xyz</span>
+          <span class="ps-reason">faktorkan y'z</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-eq">= y'z + xy'z' + xyz</span>
+          <span class="ps-reason">x'+x = 1</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-eq">= y'z + xy'(z+z') + xz(y+y')</span>
+          <span class="ps-reason">ekspansi</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-eq"><strong style="color:var(--accent)">F = y'z + xy' + xz</strong></span>
+          <span class="ps-reason">hasil akhir</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOAL 2 -->
+  <div class="soal-card" style="margin-top:1.5rem;">
+    <div class="soal-header">
+      <span class="soal-num">SOAL 02</span>
+      <span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:var(--muted);">3 variabel</span>
+    </div>
+    <div class="soal-body">
+      <p><strong>Sederhanakan:</strong></p>
+      <div class="soal-formula">F(x,y,z) = x'y'z + x'yz' + x'yz + xy'z + xyz</div>
+      <p style="margin-top:1rem;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--muted);letter-spacing:0.05em;">TABEL KEBENARAN</p>
+      <div class="truth-table-wrap">
+        <table>
+          <tr><th>x</th><th>y</th><th>z</th><th>F</th></tr>
+          <tr><td>0</td><td>0</td><td class="val-0">0</td><td class="val-0">0</td></tr>
+          <tr><td>0</td><td>0</td><td class="val-1">1</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>1</td><td class="val-0">0</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>1</td><td class="val-1">1</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>0</td><td class="val-0">0</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>0</td><td class="val-1">1</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>1</td><td class="val-0">0</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>1</td><td class="val-1">1</td><td class="val-1">1</td></tr>
+        </table>
+      </div>
+      <p style="margin-top:1rem;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--muted);letter-spacing:0.05em;">PETA KARNAUGH</p>
+      <div class="kmap-wrap">
+        <table class="kmap">
+          <tr><th>x \ yz</th><th>00</th><th>01</th><th>11</th><th>10</th></tr>
+          <tr>
+            <th>0</th>
+            <td class="cell-0">0</td>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-1 grp-b">1</td>
+          </tr>
+          <tr>
+            <th>1</th>
+            <td class="cell-0">0</td>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-0">0</td>
+          </tr>
+        </table>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,107,0.5);border:1px solid #ff6b6b;"></div> Quad: m₁,m₃,m₅,m₇ → z</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(92,184,255,0.4);border:1px solid #5cb8ff;"></div> Pair: m₂,m₃ → x'y</div>
+      </div>
+      <div class="result-box">
+        <span class="label">HASIL PENYEDERHANAAN</span>
+        <div class="formula">F(x,y,z) = z + x'y</div>
+      </div>
+      <div class="proof-steps" style="margin-top:1rem;">
+        <div class="ps-row"><span class="ps-eq">Grup z (Quad): m₁,m₃,m₅,m₇ — x berubah, y berubah, z=1 konstan → z</span><span class="ps-reason">quad</span></div>
+        <div class="ps-row"><span class="ps-eq">Grup x'y (Pair): m₂,m₃ — x=0, y=1, z berubah → x'y</span><span class="ps-reason">pair</span></div>
+        <div class="ps-row"><span class="ps-eq"><strong style="color:var(--accent)">F = z + x'y</strong></span><span class="ps-reason">hasil akhir</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOAL 3 -->
+  <div class="soal-card" style="margin-top:1.5rem;">
+    <div class="soal-header">
+      <span class="soal-num">SOAL 03</span>
+      <span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:var(--muted);">3 variabel</span>
+    </div>
+    <div class="soal-body">
+      <p><strong>Contoh soal.</strong> Sederhanakan:</p>
+      <div class="soal-formula">F(x,y,z) = x'y'z' + x'yz' + xyz' + xyz</div>
+      <p style="margin-top:1rem;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--muted);">Tabel kebenaran:</p>
+      <div class="truth-table-wrap">
+        <table>
+          <tr><th>x</th><th>y</th><th>z</th><th>F(x,y,z)</th></tr>
+          <tr><td>0</td><td>0</td><td>0</td><td class="val-0">0</td></tr>
+          <tr><td>0</td><td>0</td><td>1</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td class="val-0">0</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td class="val-1">1</td></tr>
+        </table>
+      </div>
+      <div class="kmap-wrap" style="margin-top:1rem;">
+        <table class="kmap">
+          <tr><th>x \ yz</th><th>00</th><th>01</th><th>11</th><th>10</th></tr>
+          <tr>
+           <tr>
+            <th>0</th>
+            <td class="cell-1 grp-b">1</td> <td class="cell-0">0</td>
+            <td class="cell-0">0</td>
+            <td class="cell-1 grp-b grp-a">1</td> </tr>
+          <tr>
+            <th>1</th>
+            <td class="cell-0">0</td>
+            <td class="cell-0">0</td>
+            <td class="cell-1 grp-c">1</td> <td class="cell-1 grp-a grp-c">1</td> </tr>
+          </tr>
+        </table>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,107,0.5);border:1px solid #ff6b6b;"></div> Pair yz': m₂, m₆</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(92,184,255,0.4);border:1px solid #5cb8ff;"></div> Pair x'z' (wrap): m₀, m₂</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,179,71,0.4);border:1px solid #ffb347;"></div> Pair xy: m₆, m₇</div>
+      </div>
+      <div class="result-box">
+        <span class="label">HASIL PENYEDERHANAAN</span>
+        <div class="formula">F(x,y,z) = F(x,y,z) = x'z' + yz' + xy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOAL 4 -->
+  <div class="soal-card" style="margin-top:1.5rem;">
+    <div class="soal-header">
+      <span class="soal-num">SOAL 04</span>
+      <span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:var(--muted);">2 variabel</span>
+    </div>
+    <div class="soal-body">
+      <p><strong>Sederhanakan fungsi 2 variabel:</strong></p>
+      <div class="soal-formula">F(x,y) = x'y' + xy' + xy</div>
+      <div class="truth-table-wrap" style="margin-top:1rem;">
+        <table>
+          <tr><th>x</th><th>y</th><th>F(x,y)</th></tr>
+          <tr><td>0</td><td>0</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>1</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>0</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>1</td><td class="val-1">1</td></tr>
+        </table>
+      </div>
+      <div class="kmap-wrap" style="margin-top:1rem;">
+        <span class="kmap-label">Baris = x | Kolom = y</span>
+        <table class="kmap">
+          <tr><th>x \ y</th><th>0</th><th>1</th></tr>
+          <tr><th>0</th><td class="cell-1 grp-b">1</td><td class="cell-0">0</td></tr>
+          <tr><th>1</th><td class="cell-1 grp-b">1</td><td class="cell-1 grp-b">1</td></tr>
+        </table>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(92,184,255,0.4);border:1px solid #5cb8ff;"></div> Quad: m₀,m₂,m₃ = y' + x</div>
+      </div>
+      <div class="result-box">
+        <span class="label">HASIL PENYEDERHANAAN</span>
+        <div class="formula">F(x,y) = y' + x</div>
+      </div>
+      <div class="proof-steps" style="margin-top:1rem;">
+        <div class="ps-row"><span class="ps-eq">F = x'y' + xy' + xy</span><span class="ps-reason">SOP awal</span></div>
+        <div class="ps-row"><span class="ps-eq">= y'(x'+x) + xy</span><span class="ps-reason">faktorkan y'</span></div>
+        <div class="ps-row"><span class="ps-eq">= y' + xy</span><span class="ps-reason">x'+x=1</span></div>
+        <div class="ps-row"><span class="ps-eq">= (y'+x)(y'+y) = y'+x</span><span class="ps-reason">hukum absorpsi</span></div>
+        <div class="ps-row"><span class="ps-eq"><strong style="color:var(--accent)">F = y' + x</strong></span><span class="ps-reason">hasil akhir</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOAL 5 -->
+  <div class="soal-card" style="margin-top:1.5rem;">
+    <div class="soal-header">
+      <span class="soal-num">SOAL 05</span>
+      <span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:var(--muted);">3 variabel · oktet parsial</span>
+    </div>
+    <div class="soal-body">
+      <p><strong>Sederhanakan:</strong></p>
+      <div class="soal-formula">F(x,y,z) = x'y'z' + x'y'z + x'yz' + x'yz + xy'z'</div>
+      <div class="truth-table-wrap" style="margin-top:1rem;">
+        <table>
+          <tr><th>x</th><th>y</th><th>z</th><th>F</th></tr>
+          <tr><td>0</td><td>0</td><td>0</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>0</td><td>1</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td class="val-1">1</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td class="val-1">1</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td class="val-0">0</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td class="val-0">0</td></tr>
+        </table>
+      </div>
+      <div class="kmap-wrap" style="margin-top:1rem;">
+        <table class="kmap">
+          <tr><th>x \ yz</th><th>00</th><th>01</th><th>11</th><th>10</th></tr>
+          <tr>
+            <th>0</th>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-1 grp-a">1</td>
+            <td class="cell-1 grp-a">1</td>
+          </tr>
+          <tr>
+            <th>1</th>
+            <td class="cell-1 grp-b">1</td>
+            <td class="cell-0">0</td>
+            <td class="cell-0">0</td>
+            <td class="cell-0">0</td>
+          </tr>
+        </table>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,107,0.5);border:1px solid #ff6b6b;"></div> Oktet (baris x=0) → x'</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(92,184,255,0.4);border:1px solid #5cb8ff;"></div> Pair xy'z' → (overlap dengan Oktet)</div>
+      </div>
+      <div class="result-box">
+        <span class="label">HASIL PENYEDERHANAAN</span>
+        <div class="formula">F(x,y,z) = x' + y'z'</div>
+      </div>
+      <div class="proof-steps" style="margin-top:1rem;">
+        <div class="ps-row"><span class="ps-eq">Grup x' (Oktet): semua m baris x=0 → x'</span><span class="ps-reason">4 kotak</span></div>
+        <div class="ps-row"><span class="ps-eq">Grup y'z' (Pair): m₀ dan m₄ → y'z'</span><span class="ps-reason">2 kotak, overlap ok</span></div>
+        <div class="ps-row"><span class="ps-eq"><strong style="color:var(--accent)">F = x' + y'z'</strong></span><span class="ps-reason">hasil akhir</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SECTION 4: INTERAKTIF -->
+<section id="interaktif">
+  <span class="section-tag">04 — Kalkulator Interaktif</span>
+  <h2 class="section-title">Buat K-Map Sendiri</h2>
+  <p class="section-body">
+    Masukkan nilai output F (0 atau 1) untuk setiap baris tabel kebenaran 3 variabel (x, y, z), lalu klik <strong style="color:var(--accent)">Generate K-Map</strong>.
+  </p>
+
+  <div class="interactive-box">
+    <h3>Generator K-Map 3 Variabel</h3>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.25rem;font-family:'Syne',sans-serif;">
+      Isi nilai F untuk setiap minterm m₀–m₇ (0 atau 1):
+    </p>
+    <div class="input-row" id="minterm-inputs">
+      <!-- generated by JS -->
+    </div>
+    <button id="run-btn" onclick="generateKmap()">Generate K-Map ↗</button>
+
+    <div id="kmap-result">
+      <span class="res-title">PETA KARNAUGH</span>
+      <div id="kmap-output"></div>
+      <div id="minterm-list" style="margin-top:1rem;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--muted);"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Matematika Diskrit · Aljabar Boolean · <span>Peta Karnaugh</span></p>
+  <p style="margin-top:0.5rem;font-size:0.72rem;">Dibuat untuk tugas Matematika Diskrit · Pendidikan Sistem dan Teknologi Informasi</p>
+</footer>
+
+<script>
+  // Build minterm inputs
+  const inputsDiv = document.getElementById('minterm-inputs');
+  const xyz = [
+    [0,0,0],[0,0,1],[0,1,0],[0,1,1],
+    [1,0,0],[1,0,1],[1,1,0],[1,1,1]
+  ];
+  xyz.forEach(([x,y,z],i) => {
+    const g = document.createElement('div');
+    g.className = 'input-group';
+    g.innerHTML = `<label>m₍${i}₎ (${x}${y}${z})</label>
+      <input type="number" id="m${i}" min="0" max="1" value="0" />`;
+    inputsDiv.appendChild(g);
+  });
+
+  function getVals() {
+    return Array.from({length:8}, (_,i) => {
+      const v = parseInt(document.getElementById('m'+i).value);
+      return (v === 1) ? 1 : 0;
+    });
+  }
+
+  // K-map index order for 3-var: rows=x(0,1), cols=yz in grey code (00,01,11,10)
+  // minterm indices: x=0: m0,m1,m3,m2 | x=1: m4,m5,m7,m6
+  const kmapOrder = [[0,1,3,2],[4,5,7,6]];
+  const colLabels = ['00','01','11','10'];
+
+  function generateKmap() {
+    const vals = getVals();
+    const minterms = vals.map((v,i)=>v===1?i:-1).filter(v=>v>=0);
+  const xyz = [[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]];
+    let html = '<table class="kmap" style="margin-top:0.75rem;">';
+    html += '<tr><th>x \\ yz</th>';
+    colLabels.forEach(c => html += `<th>${c}</th>`);
+    html += '</tr>';
+
+    for (let r=0; r<2; r++) {
+      html += `<tr><th>${r}</th>`;
+      for (let c=0; c<4; c++) {
+        const idx = kmapOrder[r][c];
+        const v = vals[idx];
+        const cls = v===1 ? 'cell-1' : 'cell-0';
+        html += `<td class="${cls}">${v}</td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+
+    document.getElementById('kmap-output').innerHTML = html;
+    const listEl = document.getElementById('minterm-list');
+    if (minterms.length === 0) {
+      listEl.textContent = 'Tidak ada minterm (semua F = 0).';
+    } else {
+      const labels = minterms.map(i => {
+        const [x,y,z] = xyz[i];
+        const xp = x?'x':"x'", yp=y?'y':"y'", zp=z?'z':"z'";
+        return `m₍${i}₎ = ${xp}${yp}${zp}`;
+      });
+      listEl.textContent = 'Minterm aktif: ' + labels.join('  |  ');
+    }
+
+    document.getElementById('kmap-result').style.display = 'block';
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const el = document.querySelector(a.getAttribute('href'));
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }); 
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const runBtn = document.getElementById("run-btn");
+  const kmapResult = document.getElementById("kmap-result");
+
+  if (runBtn) {
+    runBtn.addEventListener("click", () => {
+        generateKmap();
+    });
+
+  }
+});
+</script>
+</body>
+</html>
